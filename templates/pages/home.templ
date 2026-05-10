@@ -1,0 +1,35 @@
+package pages
+
+import "showcase/templates/layout"
+
+templ Home() {
+	@layout.Base("Showcase") {
+		<main class="max-w-5xl mx-auto px-6 py-16">
+			<p class="text-[11px] font-mono tracking-widest text-stone-400 uppercase mb-2">
+				Portfolio
+			</p>
+			<h1 class="text-5xl font-normal text-stone-900 mb-1">
+				My Projects
+			</h1>
+			<p class="text-stone-500 text-[15px] mb-6">
+				A collection of things I've built.
+			</p>
+			@ExploreProjects()
+		</main>
+	}
+}
+
+templ ExploreProjects() {
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+		@ProjectCard("Project One", "A sample project description.")
+		@ProjectCard("Project Two", "Another example project.")
+		@ProjectCard("Project Three", "Yet another showcase item.")
+	</div>
+}
+
+templ ProjectCard(title string, description string) {
+	<div class="bg-white rounded-lg border border-stone-200 p-6 hover:shadow-md transition-shadow">
+		<h3 class="font-medium text-stone-900 mb-2">{ title }</h3>
+		<p class="text-stone-500 text-sm">{ description }</p>
+	</div>
+}

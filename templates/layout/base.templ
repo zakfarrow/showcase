@@ -1,0 +1,33 @@
+package layout
+
+templ Base(title string) {
+	<!DOCTYPE html>
+	<html lang="en" class="h-full antialiased">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="description" content="Personal project showcase."/>
+			<title>{ title }</title>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+			<script src="https://cdn.tailwindcss.com"></script>
+			<script>
+				tailwind.config = {
+					theme: {
+						extend: {
+							fontFamily: {
+								sans: ['"Space Grotesk"', 'sans-serif'],
+								mono: ['"Space Mono"', 'monospace'],
+							},
+						},
+					},
+				}
+			</script>
+			<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
+		</head>
+		<body class="min-h-full flex flex-col font-sans">
+			{ children... }
+		</body>
+	</html>
+}

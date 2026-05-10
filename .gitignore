@@ -1,0 +1,10 @@
+# Binaries
+bin/
+tmp/
+
+# Environment
+.env
+
+# Generated files
+*_templ.go
+static/css/main.css
