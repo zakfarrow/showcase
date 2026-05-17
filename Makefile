@@ -1,4 +1,4 @@
-.PHONY: dev build run templ install clean
+.PHONY: dev build run templ install clean db-up db-down db-migrate db-seed
 
 # Development with live reload
 dev:
@@ -24,3 +24,18 @@ install:
 # Clean build artifacts
 clean:
 	rm -rf ./bin ./tmp
+
+# Database commands
+db-up:
+	docker compose up -d
+
+db-down:
+	docker compose down
+
+db-migrate:
+	docker exec -i showcase-go-db-1 psql -U postgres -d showcase < db/schema.sql
+
+db-seed:
+	docker exec -i showcase-go-db-1 psql -U postgres -d showcase < db/seed.sql
+
+db-reset: db-migrate db-seed

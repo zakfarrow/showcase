@@ -8,3 +8,6 @@ tmp/
 # Generated files
 *_templ.go
 static/css/main.css
+
+# Seed file
+db/seed.sql

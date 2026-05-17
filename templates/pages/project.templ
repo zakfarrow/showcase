@@ -1,0 +1,134 @@
+package pages
+
+import (
+	"showcase/internal/model"
+	"showcase/templates/layout"
+)
+
+templ ProjectDetail(project *model.Project) {
+	@layout.Base(project.Title + " | Showcase") {
+		<main class="max-w-3xl mx-auto px-6 py-16">
+			<a href="/" class="inline-flex items-center text-sm text-stone-500 hover:text-stone-900 mb-8 transition-colors">
+				<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+				</svg>
+				Back to projects
+			</a>
+
+			<header class="mb-8">
+				<div class="flex items-center gap-3 mb-2">
+					<p class="text-[11px] font-mono tracking-widest text-stone-400 uppercase">
+						Project
+					</p>
+					@ProjectStatusBadge(project.Status)
+				</div>
+				<h1 class="text-4xl font-normal text-stone-900 mb-3">
+					{ project.Title }
+				</h1>
+				<p class="text-lg text-stone-600">
+					{ project.Description }
+				</p>
+			</header>
+
+			if len(project.TechStack) > 0 {
+				<div class="mb-8">
+					<h2 class="text-[11px] font-mono tracking-widest text-stone-400 uppercase mb-3">
+						Tech Stack
+					</h2>
+					<div class="flex flex-wrap gap-2">
+						for _, tech := range project.TechStack {
+							<span class="text-xs font-mono px-3 py-1 bg-stone-100 text-stone-700 rounded-full">{ tech }</span>
+						}
+					</div>
+				</div>
+			}
+
+			if project.GitHubURL != nil || project.LiveURL != nil {
+				<div class="flex gap-4 mb-8">
+					if project.GitHubURL != nil {
+						<a href={ templ.SafeURL(*project.GitHubURL) } target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 transition-colors">
+							<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+								<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+							</svg>
+							View Source
+						</a>
+					}
+					if project.LiveURL != nil {
+						<a href={ templ.SafeURL(*project.LiveURL) } target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-stone-900 rounded-lg hover:bg-stone-800 transition-colors">
+							<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+							</svg>
+							View Live
+						</a>
+					}
+				</div>
+			}
+
+			<div class="space-y-10">
+				if project.Content != "" {
+					@ProjectSection("Overview", "") {
+						<p class="text-stone-700 leading-relaxed">{ project.Content }</p>
+					}
+				}
+
+				if len(project.Features) > 0 {
+					@ProjectSection("Features", "") {
+						<ul class="space-y-2">
+							for _, feature := range project.Features {
+								<li class="flex items-start gap-3">
+									<svg class="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+									</svg>
+									<span class="text-stone-700">{ feature }</span>
+								</li>
+							}
+						</ul>
+					}
+				}
+
+				if project.Challenges != "" {
+					@ProjectSection("Challenges", "text-amber-600") {
+						<p class="text-stone-700 leading-relaxed">{ project.Challenges }</p>
+					}
+				}
+
+				if project.Learnings != "" {
+					@ProjectSection("What I Learned", "text-blue-600") {
+						<p class="text-stone-700 leading-relaxed">{ project.Learnings }</p>
+					}
+				}
+
+				if project.FuturePlans != "" {
+					@ProjectSection("Future Plans", "text-purple-600") {
+						<p class="text-stone-700 leading-relaxed">{ project.FuturePlans }</p>
+					}
+				}
+			</div>
+		</main>
+	}
+}
+
+templ ProjectSection(title string, iconColor string) {
+	<section class="border-t border-stone-200 pt-8">
+		<h2 class="text-lg font-medium text-stone-900 mb-4 flex items-center gap-2">
+			if iconColor != "" {
+				<span class={ "w-2 h-2 rounded-full", iconColor, "bg-current" }></span>
+			}
+			{ title }
+		</h2>
+		{ children... }
+	</section>
+}
+
+templ ProjectStatusBadge(status string) {
+	switch status {
+		case "completed":
+			<span class="text-[10px] font-medium px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Completed</span>
+		case "in-progress":
+			<span class="text-[10px] font-medium px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">In Progress</span>
+		case "planned":
+			<span class="text-[10px] font-medium px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">Planned</span>
+		default:
+			<span class="text-[10px] font-medium px-2 py-0.5 bg-stone-100 text-stone-600 rounded-full">{ status }</span>
+	}
+}
