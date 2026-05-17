@@ -204,3 +204,42 @@ func GetAllTechnologies(ctx context.Context) ([]string, error) {
 	}
 	return techs, rows.Err()
 }
+
+func CreateProject(ctx context.Context, p *model.Project) error {
+	return database.Pool.QueryRow(ctx, `
+		INSERT INTO projects (
+			slug, title, description, content, tech_stack, status,
+			features, challenges, learnings, future_plans,
+			github_url, live_url, image_url, featured, sort_order
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+		RETURNING id, created_at, updated_at
+	`,
+		p.Slug, p.Title, p.Description, p.Content, p.TechStack, p.Status,
+		p.Features, p.Challenges, p.Learnings, p.FuturePlans,
+		p.GitHubURL, p.LiveURL, p.ImageURL, p.Featured, p.SortOrder,
+	).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
+}
+
+func UpdateProject(ctx context.Context, p *model.Project) error {
+	_, err := database.Pool.Exec(ctx, `
+		UPDATE projects SET
+			slug = $2, title = $3, description = $4, content = $5,
+			tech_stack = $6, status = $7, features = $8,
+			challenges = $9, learnings = $10, future_plans = $11,
+			github_url = $12, live_url = $13, image_url = $14,
+			featured = $15, sort_order = $16, updated_at = NOW()
+		WHERE id = $1
+	`,
+		p.ID, p.Slug, p.Title, p.Description, p.Content,
+		p.TechStack, p.Status, p.Features,
+		p.Challenges, p.Learnings, p.FuturePlans,
+		p.GitHubURL, p.LiveURL, p.ImageURL,
+		p.Featured, p.SortOrder,
+	)
+	return err
+}
+
+func DeleteProject(ctx context.Context, id int) error {
+	_, err := database.Pool.Exec(ctx, `DELETE FROM projects WHERE id = $1`, id)
+	return err
+}

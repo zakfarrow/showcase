@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 
+	"showcase/internal/auth"
 	"showcase/internal/database"
 	"showcase/internal/handler"
 )
@@ -21,6 +22,9 @@ func main() {
 	}
 	defer database.Close()
 
+	auth.InitStore()
+	auth.InitOAuth()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -30,6 +34,22 @@ func main() {
 	// Pages
 	r.Get("/", handler.Home)
 	r.Get("/projects/{slug}", handler.ProjectDetail)
+
+	// Auth
+	r.Get("/auth/login", auth.LoginHandler)
+	r.Get("/auth/callback", auth.CallbackHandler)
+	r.Get("/auth/logout", auth.LogoutHandler)
+
+	// Admin (protected)
+	r.Route("/admin", func(r chi.Router) {
+		r.Use(auth.RequireAuth)
+		r.Get("/", handler.AdminDashboard)
+		r.Get("/projects/new", handler.AdminNewProject)
+		r.Post("/projects", handler.AdminCreateProject)
+		r.Get("/projects/{id}/edit", handler.AdminEditProject)
+		r.Post("/projects/{id}", handler.AdminUpdateProject)
+		r.Post("/projects/{id}/delete", handler.AdminDeleteProject)
+	})
 
 	// API
 	r.Route("/api", func(r chi.Router) {
