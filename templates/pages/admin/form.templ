@@ -1,0 +1,211 @@
+package admin
+
+import (
+	"fmt"
+	"showcase/internal/auth"
+	"showcase/internal/model"
+	"showcase/templates/layout"
+	"strings"
+)
+
+templ ProjectForm(project *model.Project, user *auth.SessionUser) {
+	@layout.Admin(formTitle(project), user) {
+		<div class="max-w-2xl">
+			<h1 class="text-2xl font-medium text-stone-900 mb-8">{ formTitle(project) }</h1>
+			<form
+				action={ formAction(project) }
+				method="POST"
+				class="space-y-6"
+			>
+				<div class="grid grid-cols-2 gap-4">
+					@TextInput("title", "Title", getValue(project, "title"), true)
+					@TextInput("slug", "Slug", getValue(project, "slug"), true)
+				</div>
+				@TextInput("description", "Description", getValue(project, "description"), true)
+				@TextArea("content", "Content", getValue(project, "content"), 4)
+				<div class="grid grid-cols-2 gap-4">
+					@TextInput("tech_stack", "Tech Stack", getValue(project, "tech_stack"), false)
+					@SelectInput("status", "Status", getValue(project, "status"), []string{"planned", "in-progress", "completed"})
+				</div>
+				@TextInput("features", "Features", getValue(project, "features"), false)
+				@TextArea("challenges", "Challenges", getValue(project, "challenges"), 3)
+				@TextArea("learnings", "Learnings", getValue(project, "learnings"), 3)
+				@TextArea("future_plans", "Future Plans", getValue(project, "future_plans"), 3)
+				<div class="grid grid-cols-3 gap-4">
+					@TextInput("github_url", "GitHub URL", getValue(project, "github_url"), false)
+					@TextInput("live_url", "Live URL", getValue(project, "live_url"), false)
+					@TextInput("image_url", "Image URL", getValue(project, "image_url"), false)
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					@NumberInput("sort_order", "Sort Order", getValue(project, "sort_order"))
+					@CheckboxInput("featured", "Featured", project != nil && project.Featured)
+				</div>
+				<div class="flex items-center gap-4 pt-4">
+					<button
+						type="submit"
+						class="px-4 py-2 bg-stone-900 text-white text-sm font-medium rounded-lg hover:bg-stone-800 transition-colors"
+					>
+						{ submitLabel(project) }
+					</button>
+					<a href="/admin" class="text-sm text-stone-500 hover:text-stone-700">Cancel</a>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+templ TextInput(name, label, value string, required bool) {
+	<div>
+		<label for={ name } class="block text-sm font-medium text-stone-700 mb-1">{ label }</label>
+		<input
+			type="text"
+			id={ name }
+			name={ name }
+			value={ value }
+			if required {
+				required
+			}
+			class="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
+		/>
+		if name == "tech_stack" || name == "features" {
+			<p class="text-xs text-stone-500 mt-1">Comma-separated values</p>
+		}
+	</div>
+}
+
+templ TextArea(name, label, value string, rows int) {
+	<div>
+		<label for={ name } class="block text-sm font-medium text-stone-700 mb-1">{ label }</label>
+		<textarea
+			id={ name }
+			name={ name }
+			rows={ fmt.Sprintf("%d", rows) }
+			class="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
+		>{ value }</textarea>
+	</div>
+}
+
+templ SelectInput(name, label, value string, options []string) {
+	<div>
+		<label for={ name } class="block text-sm font-medium text-stone-700 mb-1">{ label }</label>
+		<select
+			id={ name }
+			name={ name }
+			class="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
+		>
+			for _, opt := range options {
+				<option value={ opt } selected?={ opt == value }>{ statusLabel(opt) }</option>
+			}
+		</select>
+	</div>
+}
+
+templ NumberInput(name, label, value string) {
+	<div>
+		<label for={ name } class="block text-sm font-medium text-stone-700 mb-1">{ label }</label>
+		<input
+			type="number"
+			id={ name }
+			name={ name }
+			value={ value }
+			class="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
+		/>
+	</div>
+}
+
+templ CheckboxInput(name, label string, checked bool) {
+	<div class="flex items-center gap-2 pt-6">
+		<input
+			type="checkbox"
+			id={ name }
+			name={ name }
+			checked?={ checked }
+			class="w-4 h-4 text-stone-900 border-stone-300 rounded focus:ring-stone-900"
+		/>
+		<label for={ name } class="text-sm font-medium text-stone-700">{ label }</label>
+	</div>
+}
+
+func formTitle(p *model.Project) string {
+	if p == nil {
+		return "New Project"
+	}
+	return "Edit Project"
+}
+
+func formAction(p *model.Project) templ.SafeURL {
+	if p == nil {
+		return "/admin/projects"
+	}
+	return templ.SafeURL(fmt.Sprintf("/admin/projects/%d", p.ID))
+}
+
+func submitLabel(p *model.Project) string {
+	if p == nil {
+		return "Create Project"
+	}
+	return "Update Project"
+}
+
+func getValue(p *model.Project, field string) string {
+	if p == nil {
+		if field == "sort_order" {
+			return "0"
+		}
+		return ""
+	}
+	switch field {
+	case "title":
+		return p.Title
+	case "slug":
+		return p.Slug
+	case "description":
+		return p.Description
+	case "content":
+		return p.Content
+	case "tech_stack":
+		return strings.Join(p.TechStack, ", ")
+	case "status":
+		return p.Status
+	case "features":
+		return strings.Join(p.Features, ", ")
+	case "challenges":
+		return p.Challenges
+	case "learnings":
+		return p.Learnings
+	case "future_plans":
+		return p.FuturePlans
+	case "github_url":
+		if p.GitHubURL != nil {
+			return *p.GitHubURL
+		}
+		return ""
+	case "live_url":
+		if p.LiveURL != nil {
+			return *p.LiveURL
+		}
+		return ""
+	case "image_url":
+		if p.ImageURL != nil {
+			return *p.ImageURL
+		}
+		return ""
+	case "sort_order":
+		return fmt.Sprintf("%d", p.SortOrder)
+	default:
+		return ""
+	}
+}
+
+func statusLabel(status string) string {
+	switch status {
+	case "completed":
+		return "Completed"
+	case "in-progress":
+		return "In Progress"
+	case "planned":
+		return "Planned"
+	default:
+		return status
+	}
+}
