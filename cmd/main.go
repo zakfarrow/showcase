@@ -29,8 +29,6 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
 	// Pages
 	r.Get("/", handler.Home)
 	r.Get("/projects/{slug}", handler.ProjectDetail)
