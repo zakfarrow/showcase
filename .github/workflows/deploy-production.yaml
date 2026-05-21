@@ -3,7 +3,7 @@ name: Build and Deploy to Production
 on:
   push:
     branches:
-      - "feat/deployment-pipeline"
+      - "main"
 
 env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
