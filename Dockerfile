@@ -39,9 +39,6 @@ WORKDIR /app
 # Copy binary from builder
 COPY --from=builder /app/server .
 
-# Copy static assets (even if empty, for future use)
-COPY --from=builder /app/static ./static
-
 # Set ownership
 RUN chown -R appuser:appgroup /app
 
