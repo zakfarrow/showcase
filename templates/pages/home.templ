@@ -88,10 +88,10 @@ templ ProjectCard(project model.Project) {
 		href={ templ.SafeURL("/projects/" + project.Slug) }
 		class="block bg-white rounded-lg border border-stone-200 p-6 hover:shadow-md hover:border-stone-300 transition-all"
 	>
-		<div class="flex items-start justify-between gap-2 mb-2">
-			<h3 class="font-medium text-stone-900">{ project.Title }</h3>
+		<div class="w-fit ml-auto mb-2">
 			@StatusBadge(project.Status)
 		</div>
+		<h3 class="font-medium text-stone-900">{ project.Title }</h3>
 		<p class="text-stone-500 text-sm mb-4">{ project.Description }</p>
 		if len(project.TechStack) > 0 {
 			<div class="flex flex-wrap gap-1.5">
